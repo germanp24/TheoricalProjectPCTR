@@ -3,8 +3,8 @@
 /* Definición de los miembros de la clase Puente que implementa el monitor */
 
 Puente::Puente(char * turnoInicial): /* Constructor */
-    _numCochesCruzandoEnTurno(0), /* Número de coches que están cruzando el puente en un momento dado. Se 					  inicializa a 0 */
-    _numCochesEsperandoTurno(0)   /* Números de coches bloqueados en el otro extremo del puente en un momento, 					  dado, esperando su turno */
+    _numCochesCruzandoEnTurno(0), /* Número de coches que están cruzando el puente en un momento dado. Se inicializa a 0 */
+    _numCochesEsperandoTurno(0)   /* Números de coches bloqueados en el otro extremo del puente en un momento dado, esperando su turno */
 {
     this->_turno = turnoInicial; /* turno "N->S" ó "S->N" */
     pthread_mutex_init(&_mutex, NULL); /* Se inicializan el mutex y las variables de condición */
@@ -25,7 +25,7 @@ void Puente::printPuente(char *cadena) {
 void Puente::darPasoCochesN_S() { 
     
     /**** POR HACER ****/
-    /* 1) Se debe crear una zona que garantice la exclusión mutua haciendo uso de las primitivas de lock/unlock 	del mutex. Dentro de esa zona de exclusión mutua:
+    /* 1) Se debe crear una zona que garantice la exclusión mutua haciendo uso de las primitivas de lock/unlock del mutex. Dentro de esa zona de exclusión mutua:
     *     2) Mientras la cadena _turno NO sea igual al sentido "N->S":
     *	    2.1) Se incrementa en uno _numCochesEsperandoTurno (esto significa que hay un nuevo coche esperando el
     *	         turno para cruzar desde el otro extremo)
@@ -40,20 +40,48 @@ void Puente::darPasoCochesN_S() {
     *	  El coche "empieza a cruzar" de modo que antes de hacer el unlock al mutex hay que incrementar en
     *     uno la variable que representa el "número de coches cruzando en turno"		  
     */
+
+   pthread_mutex_lock(&_mutex); // Block mutex to enter critical section
+   // START OF THE CRITICAL SECTION
+
+   // Compare turn with N_S, if not equal then wait
+    while(strcmp(_turno, N_S) != 0) {
+         _numCochesEsperandoTurno++;    // Increment waiting cars
+         pthread_cond_wait(&_synchroN_S, &_mutex);  // Block thread until condition is true
+    }
+
+    // The thread receives the turn and starts crossing the bridge
+    _numCochesCruzandoEnTurno++;    // Increment cars crossing the bridge
+
+    // Verify if the bridge is empty in the other direction
+    if (_numCochesEsperandoTurno == 0) {
+        // Call pthread_cond_signal() to permit the other direction to cross the bridge
+        pthread_cond_signal(&_synchroS_N);
+    }
+
+    // END OF THE CRITICAL SECTION
+    pthread_mutex_unlock(&_mutex); // Unlock mutex to exit critical section
 } 
 
 void Puente::darPasoCochesS_N(){
+
  /* Esta función es el caso opuesto/contrario a la función anterior darPasoCochesN_S() */
-    
- // pthread_mutex_lock(&_mutex); /* Poner cerrojo/lock */
-        while( strcmp(_turno,S_N)!=0 ){/* Todavía no se le puede dar el paso...*/
+    pthread_mutex_lock(&_mutex); /* Poner cerrojo/lock */
+        while( strcmp(_turno,S_N) !=0 ){/* Todavía no se le puede dar el paso...*/
              /**** POR HACER ****/
              // ... (una sentencia aquí en base a lo indicado en 2.1)
+
+             _numCochesEsperandoTurno++; // Increment waiting cars
+             pthread_cond_wait(&_synchroS_N, &_mutex); // Block thread until condition is true
+
              pthread_cond_wait(&_synchroS_N,&_mutex);
-        } /* Fin while */
+        }
+
         /**** POR HACER ****/
         // Aquí falta sentencia para incrementar en uno el "número de coches cruzando en turno"
- // pthread_mutex_unlock(&_mutex); /* Quitar cerrojo/lock */
+        
+    _numCochesCruzandoEnTurno++; // Increment cars crossing the bridge
+    pthread_mutex_unlock(&_mutex); /* Quitar cerrojo/lock */
 }
 
 void Puente::descontarYComprobarSiCerrarPasoN_S(){
