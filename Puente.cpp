@@ -46,7 +46,7 @@ void Puente::darPasoCochesS_N(){
     pthread_mutex_lock(&_mutex); /* Poner cerrojo/lock */
         while( strcmp(_turno,S_N) !=0 ){/* Todavía no se le puede dar el paso...*/
 
-            numCochesEsperandoTurno++; // Increment waiting cars
+            _numCochesEsperandoTurno++; // Increment waiting cars
             pthread_cond_wait(&_synchroS_N, &_mutex); // Block thread until condition is true
 
         }
