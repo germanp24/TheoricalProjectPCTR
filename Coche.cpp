@@ -22,10 +22,15 @@ void Coche::circula(){
     /* Invocar operación específica del monitor Puente con la que el coche "solicita paso" según el sentido con el 	que desea atraversarlo. Esta operación es bloqueante si ya están atravesando coches en sentido contrario */
     if( strcmp(_sentido, N_S) == 0 ) /* Si el sentido con el que desea atravesar el puente este coche es N->S */
 	/**** POR HACER ****/
-        // _puente->... ; 
+        // _puente->... ;
+
+        _puente->darPasoCochesN_S();
+
     else if( strcmp(_sentido, S_N) == 0 )
     	/**** POR HACER ****/
         // _puente->... ; 
+
+        _puente->darPasoCochesS_N();
     
     /* Si se alcanza este punto del código el coche atravesará el puente en el sentido deseado */
     printCoche("esta cruzando el puente al que llegó");
@@ -40,7 +45,12 @@ void Coche::circula(){
     if( strcmp(_sentido, N_S) == 0 ) 
     	/**** POR HACER ****/
         // _puente->... ; 
+
+        _puente->descontarYComprobarSiCerrarPasoN_S();
+
     else if( strcmp(_sentido, S_N) == 0 )
         /**** POR HACER ****/
         // _puente->... ; 
+
+        _puente->descontarYComprobarSiCerrarPasoS_N();
 }

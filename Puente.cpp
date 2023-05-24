@@ -73,8 +73,6 @@ void Puente::darPasoCochesS_N(){
 
              _numCochesEsperandoTurno++; // Increment waiting cars
              pthread_cond_wait(&_synchroS_N, &_mutex); // Block thread until condition is true
-
-             pthread_cond_wait(&_synchroS_N,&_mutex);
         }
 
         /**** POR HACER ****/
