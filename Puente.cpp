@@ -53,12 +53,6 @@ void Puente::darPasoCochesN_S() {
     // The thread receives the turn and starts crossing the bridge
     _numCochesCruzandoEnTurno++;    // Increment cars crossing the bridge
 
-    // Verify if the bridge is empty in the other direction
-    if (_numCochesEsperandoTurno == 0) {
-        // Call pthread_cond_signal() to permit the other direction to cross the bridge
-        pthread_cond_signal(&_synchroS_N);
-    }
-
     // END OF THE CRITICAL SECTION
     pthread_mutex_unlock(&_mutex); // Unlock mutex to exit critical section
 } 
